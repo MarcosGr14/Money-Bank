@@ -1,0 +1,53 @@
+@import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+:root {
+  --bg-canvas: #F7F8FA;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-muted: #EEF1F6;
+  --text-primary: #172033;
+  --text-secondary: #737D8F;
+  --accent-primary: #3559D8;
+  --accent-soft: rgba(53, 89, 216, 0.10);
+  --status-positive: #16865B;
+  --status-warning: #D99A32;
+  --status-danger: #D94B4B;
+  --border-subtle: #E8EBF0;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg-canvas: #11151D;
+  --bg-surface: #191F2A;
+  --bg-elevated: #202837;
+  --bg-muted: #242D3D;
+  --text-primary: #F1F4F9;
+  --text-secondary: #98A3B5;
+  --accent-primary: #7794FF;
+  --accent-soft: rgba(119, 148, 255, 0.14);
+  --status-positive: #36B985;
+  --status-warning: #E6B04D;
+  --status-danger: #ED6666;
+  --border-subtle: #283244;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #FFFFFF !important; color: #172033 !important; }
+}
