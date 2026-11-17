@@ -3,13 +3,14 @@ import {
   decryptString,
   deriveAesKey,
   encryptString,
+  generateIvBase64,
   generateSaltBase64,
 } from '@/services/encryption/cryptoEngine';
 import type { FinancialVaultPayload } from '@/types/domain';
 
 export interface EncryptedBackupEnvelope {
   format: 'MONEYBANK_ENCRYPTED_BACKUP';
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   exportedAt: string;
   kdf: {
     algorithm: 'PBKDF2-SHA256';
@@ -22,6 +23,19 @@ export interface EncryptedBackupEnvelope {
     cipherBase64: string;
   };
   checksumSha256: string;
+}
+
+function authenticatedMetadata(envelope: EncryptedBackupEnvelope): Uint8Array {
+  return new TextEncoder().encode(JSON.stringify({
+    format: envelope.format,
+    schemaVersion: envelope.schemaVersion,
+    exportedAt: envelope.exportedAt,
+    kdf: envelope.kdf,
+    cipher: {
+      algorithm: envelope.cipher.algorithm,
+      ivBase64: envelope.cipher.ivBase64,
+    },
+  }));
 }
 
 async function sha256Hex(input: string): Promise<string> {
@@ -38,25 +52,24 @@ export async function createEncryptedBackup(
   const saltBase64 = generateSaltBase64();
   const key = await deriveAesKey(backupPassword, saltBase64, DEFAULT_PBKDF2_ITERATIONS);
   const serialized = JSON.stringify(payload);
-  const { ivBase64, cipherBase64 } = await encryptString(serialized, key);
-  const checksumSha256 = await sha256Hex(`${saltBase64}:${ivBase64}:${cipherBase64}`);
-
   const envelope: EncryptedBackupEnvelope = {
     format: 'MONEYBANK_ENCRYPTED_BACKUP',
-    schemaVersion: 1,
+    schemaVersion: 2,
     exportedAt: new Date().toISOString(),
-    kdf: {
-      algorithm: 'PBKDF2-SHA256',
-      iterations: DEFAULT_PBKDF2_ITERATIONS,
-      saltBase64,
-    },
-    cipher: {
-      algorithm: 'AES-GCM-256',
-      ivBase64,
-      cipherBase64,
-    },
-    checksumSha256,
+    kdf: { algorithm: 'PBKDF2-SHA256', iterations: DEFAULT_PBKDF2_ITERATIONS, saltBase64 },
+    cipher: { algorithm: 'AES-GCM-256', ivBase64: generateIvBase64(), cipherBase64: '' },
+    checksumSha256: '',
   };
+  const { cipherBase64 } = await encryptString(
+    serialized,
+    key,
+    authenticatedMetadata(envelope),
+    envelope.cipher.ivBase64
+  );
+  envelope.cipher.cipherBase64 = cipherBase64;
+  envelope.checksumSha256 = await sha256Hex(
+    `${saltBase64}:${envelope.cipher.ivBase64}:${cipherBase64}`
+  );
 
   return JSON.stringify(envelope, null, 2);
 }
@@ -73,11 +86,17 @@ export async function restoreEncryptedBackup(
   }
 
   if (
+    !parsed || typeof parsed !== 'object' ||
     parsed.format !== 'MONEYBANK_ENCRYPTED_BACKUP' ||
-    parsed.schemaVersion !== 1 ||
-    !parsed.kdf?.saltBase64 ||
-    !parsed.cipher?.ivBase64 ||
-    !parsed.cipher?.cipherBase64
+    ![1, 2].includes(parsed.schemaVersion) ||
+    typeof parsed.exportedAt !== 'string' ||
+    parsed.kdf?.algorithm !== 'PBKDF2-SHA256' ||
+    !Number.isSafeInteger(parsed.kdf.iterations) || parsed.kdf.iterations < 1 || parsed.kdf.iterations > 2_000_000 ||
+    typeof parsed.kdf?.saltBase64 !== 'string' ||
+    parsed.cipher?.algorithm !== 'AES-GCM-256' ||
+    typeof parsed.cipher?.ivBase64 !== 'string' ||
+    typeof parsed.cipher?.cipherBase64 !== 'string' ||
+    typeof parsed.checksumSha256 !== 'string'
   ) {
     throw new Error('Formato o versión de respaldo incompatible.');
   }
@@ -92,12 +111,17 @@ export async function restoreEncryptedBackup(
   const key = await deriveAesKey(
     backupPassword,
     parsed.kdf.saltBase64,
-    parsed.kdf.iterations || DEFAULT_PBKDF2_ITERATIONS
+    parsed.kdf.iterations
   );
 
   let plaintext: string;
   try {
-    plaintext = await decryptString(parsed.cipher.cipherBase64, parsed.cipher.ivBase64, key);
+    plaintext = await decryptString(
+      parsed.cipher.cipherBase64,
+      parsed.cipher.ivBase64,
+      key,
+      parsed.schemaVersion === 2 ? authenticatedMetadata(parsed) : undefined
+    );
   } catch {
     throw new Error('Contraseña de respaldo incorrecta o datos cifrados dañados.');
   }

@@ -1,6 +1,12 @@
 const PBKDF2_ITERATIONS = 310_000;
 const VERIFIER_PLAINTEXT = 'MONEYBANK_VAULT_VERIFIED_V1';
 
+function arrayBufferBacked(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
+  const copy = new Uint8Array(new ArrayBuffer(bytes.byteLength));
+  copy.set(bytes);
+  return copy;
+}
+
 function toBase64(bytes: Uint8Array): string {
   let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
@@ -22,6 +28,10 @@ export function generateSaltBase64(): string {
   return toBase64(crypto.getRandomValues(new Uint8Array(16)));
 }
 
+export function generateIvBase64(): string {
+  return toBase64(crypto.getRandomValues(new Uint8Array(12)));
+}
+
 export async function deriveAesKey(
   password: string,
   saltBase64: string,
@@ -39,7 +49,7 @@ export async function deriveAesKey(
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: fromBase64(saltBase64),
+      salt: arrayBufferBacked(fromBase64(saltBase64)),
       iterations,
       hash: 'SHA-256',
     },
@@ -52,12 +62,21 @@ export async function deriveAesKey(
 
 export async function encryptString(
   plaintext: string,
-  key: CryptoKey
+  key: CryptoKey,
+  additionalData?: Uint8Array,
+  ivBase64?: string
 ): Promise<{ ivBase64: string; cipherBase64: string }> {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const iv = ivBase64
+    ? arrayBufferBacked(fromBase64(ivBase64))
+    : crypto.getRandomValues(new Uint8Array(new ArrayBuffer(12)));
   const encoded = new TextEncoder().encode(plaintext);
+  const algorithm: AesGcmParams = {
+    name: 'AES-GCM',
+    iv: arrayBufferBacked(iv),
+    ...(additionalData ? { additionalData: arrayBufferBacked(additionalData) } : {}),
+  };
   const cipherBuffer = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
+    algorithm,
     key,
     encoded
   );
@@ -70,12 +89,18 @@ export async function encryptString(
 export async function decryptString(
   cipherBase64: string,
   ivBase64: string,
-  key: CryptoKey
+  key: CryptoKey,
+  additionalData?: Uint8Array
 ): Promise<string> {
+  const algorithm: AesGcmParams = {
+    name: 'AES-GCM',
+    iv: arrayBufferBacked(fromBase64(ivBase64)),
+    ...(additionalData ? { additionalData: arrayBufferBacked(additionalData) } : {}),
+  };
   const decryptedBuffer = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: fromBase64(ivBase64) },
+    algorithm,
     key,
-    fromBase64(cipherBase64)
+    arrayBufferBacked(fromBase64(cipherBase64))
   );
   return new TextDecoder().decode(decryptedBuffer);
 }

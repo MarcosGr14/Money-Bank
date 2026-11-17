@@ -1,0 +1,51 @@
+1
+00:00:00,200 --> 00:00:08,300
+Empecemos por la bóveda local. Crea una contraseña maestra segura y MONEYBANK cifra tus datos en este dispositivo.
+
+2
+00:00:08,300 --> 00:00:13,700
+Al entrar, el Resumen te muestra una vista general de tu situación financiera.
+
+3
+00:00:13,700 --> 00:00:21,400
+En Cuentas, organiza bancos, efectivo, ahorro y tarjetas para saber qué saldo corresponde a cada lugar.
+
+4
+00:00:21,400 --> 00:00:26,300
+En Ingresos, separa el dinero que ya recibiste de lo que esperas cobrar.
+
+5
+00:00:26,300 --> 00:00:32,900
+En Gastos, registra cada compra con una categoría para revisar después en qué se fue el dinero.
+
+6
+00:00:32,900 --> 00:00:39,400
+Añade pagos recurrentes para anticipar las próximas fechas y mantener sus importes a la vista.
+
+7
+00:00:39,400 --> 00:00:46,200
+Si tienes un préstamo, registra el saldo y consulta cómo se distribuye entre capital e intereses.
+
+8
+00:00:46,200 --> 00:00:51,500
+Crea metas para reservar dinero y prepara presupuestos mensuales por categoría.
+
+9
+00:00:51,500 --> 00:00:55,600
+El Calendario reúne vencimientos y movimientos próximos.
+
+10
+00:00:55,600 --> 00:01:00,100
+Revisa Salud Financiera para entender tus compromisos y alertas.
+
+11
+00:01:00,100 --> 00:01:06,500
+Por último, desde Reportes puedes descargar un respaldo cifrado para conservar una copia.
+
+12
+00:01:06,500 --> 00:01:10,100
+Tu información permanece bajo tu control local.
+
+13
+00:01:10,100 --> 00:01:11,500
+MONEYBANK.

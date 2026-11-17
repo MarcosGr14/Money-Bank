@@ -1,0 +1,47 @@
+1
+00:00:00,200 --> 00:00:06,200
+Llevar tus finanzas no debería exigir hojas de cálculo ni entregar tus datos a terceros.
+
+2
+00:00:06,200 --> 00:00:11,200
+MONEYBANK empieza con una bóveda cifrada que permanece en tu dispositivo.
+
+3
+00:00:11,200 --> 00:00:17,500
+En el Resumen puedes ver tu patrimonio, el flujo del mes y el disponible seguro para gastar.
+
+4
+00:00:17,500 --> 00:00:24,300
+Comprueba cómo se consideran los compromisos próximos y el ahorro reservado.
+
+5
+00:00:24,300 --> 00:00:31,400
+Después, reúne tus cuentas y registra cada movimiento para entender de dónde viene y a dónde va tu dinero.
+
+6
+00:00:31,400 --> 00:00:36,900
+Programa pagos recurrentes para anticipar sus fechas y controlar sus importes.
+
+7
+00:00:36,900 --> 00:00:42,600
+Si tienes deudas, compara estrategias de pago y observa cómo cambia el plazo.
+
+8
+00:00:42,600 --> 00:00:47,200
+Define metas de ahorro y consulta su avance junto con tus cuentas.
+
+9
+00:00:47,200 --> 00:00:54,900
+La Analítica muestra la evolución de tus hábitos; Salud Financiera explica los factores detrás de sus alertas.
+
+10
+00:00:54,900 --> 00:01:00,600
+En el Simulador puedes explorar una decisión antes de incorporarla a tu presupuesto.
+
+11
+00:01:00,600 --> 00:01:09,400
+En Configuración encuentras el control de una herramienta local, diseñada para funcionar sin enviar tus finanzas a un servidor.
+
+12
+00:01:09,400 --> 00:01:16,800
+MONEYBANK. Your Money. Your Control. Tu dinero, siempre bajo tu control.
